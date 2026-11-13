@@ -25,16 +25,17 @@ func main() {
 			os.Exit(1)
 		}
 
-		for {
+		go func(conn net.Conn) {
+			defer conn.Close()
 
-			n, err := conn.Read(input)
-			if err != nil {
-				fmt.Println("Error reading input:", err)
-				break
+			for {
+				_, err := conn.Read(input)
+				if err != nil {
+					fmt.Println("Error reading input:", err)
+					break
+				}
+				conn.Write([]byte("+PONG\r\n"))
 			}
-			fmt.Println(n)
-			conn.Write([]byte("+PONG\r\n"))
-		}
-		conn.Close()
+		}(conn)
 	}
 }
