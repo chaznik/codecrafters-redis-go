@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 )
@@ -17,7 +18,6 @@ func main() {
 	}
 	defer l.Close()
 
-	input := make([]byte, 1024)
 	for {
 		conn, err := l.Accept()
 		if err != nil {
@@ -28,13 +28,15 @@ func main() {
 		go func(conn net.Conn) {
 			defer conn.Close()
 
+			//p := parser.NewParser(conn)
+
 			for {
-				_, err := conn.Read(input)
 				if err != nil {
-					fmt.Println("Error reading input:", err)
-					break
+					if err != io.EOF {
+						fmt.Println("Error reading input:", err)
+					}
+					return
 				}
-				conn.Write([]byte("+PONG\r\n"))
 			}
 		}(conn)
 	}
